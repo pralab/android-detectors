@@ -20,7 +20,7 @@ This repository should be used as a starting point to build a model and submit t
 
 ### Submission
 - The submission of the results for the open tracks can be performed on the [ELSA benchmarks website](https://benchmarks.elsa-ai.eu/?ch=6&com=mymethods). For all the evaluation tracks, the submission must be uploaded in a JSON file, containing a list with a dictionary for each evaluation round (the first dictionary corresponds to the first round, and so on). The keys of each dictionary are the SHA256 hashes of the test set samples for the respective round. An array containing the predicted class label (either 0 or 1) and the positive class score must be associated with each SHA256 hash.
-```json
+```
 [
   {
     sha256: [label, score],
@@ -31,18 +31,30 @@ This repository should be used as a starting point to build a model and submit t
 ```
 
 ### Run the example code
-Download all the datasets and pre-computed features from the [ELSA benchmarks website](https://benchmarks.elsa-ai.eu/?ch=6&com=downloads) inside the `elsa-benchmarks` directory.
+Download all the datasets and pre-computed features from the [ELSA benchmarks website](https://benchmarks.elsa-ai.eu/?ch=6&com=downloads) inside the `elsa-benchmarks/data` directory.
 
 If you want to use Docker, you can use the following commands:
 ```bash
 docker build -t android .
 docker run -it --name android android python /android-detectors/elsa-benchmarks/drebin_track_3.py
-docker cp android:/android-detectors/elsa-benchmarks/submission_drebin_track_3.json elsa-benchmarks/
+```
+The submission file and the pretrained model files can be gathered from the container:
+```bash
+docker cp android:/android-detectors/elsa-benchmarks/submissions/submission_drebin_track_3.json elsa-benchmarks/submissions/
+docker cp android:/android-detectors/pretrained/drebin_classifier.pkl pretrained/
+docker cp android:/android-detectors/pretrained/drebin_vectorizer.pkl pretrained/
 ```
 
-If you don't want to use Docker, it is recommended to create a new environment, for instance if you use conda you can run:
+If you don't want to use Docker, it is recommended to create a new environment, for instance if you use conda you can run (it might be required to append `src` directory to the python path before launching the script):
 ```bash
 conda create -n android python=3.9
 conda activate android
 pip install -r ./requirements.txt
+python3 elsa-benchmarks/drebin_track_3.py
 ```
+
+Pre-trained models can also be downloaded from Drive:
+- [DREBIN](https://drive.google.com/drive/folders/118Eb_KoW6vE38aqDY0MmVfHUtLOwO8Vk?usp=sharing)
+- [SecSVM](https://drive.google.com/drive/folders/1pSO0UWvBJsrkIgshYkHwR3OqR_slZGBH?usp=sharing)
+
+The downloaded files must be placed in the `pretrained` folder.
