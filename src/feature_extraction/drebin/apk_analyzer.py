@@ -6,7 +6,6 @@ import os
 import time
 import lxml
 import lxml.etree
-from feature_extraction.drebin.utils import generate_filepath
 from androguard.core.bytecodes import apk
 from androguard.core.bytecodes import dvm
 import validators
@@ -26,7 +25,7 @@ def process_apk(apk_file, features_out_dir, logger):
         app_obj = apk.APK(apk_file)
         req_permissions, activities, services, providers, \
             receivers, hardware_components, intent_filters = \
-            get_from_xml(apk_file, app_obj, features_out_dir, logger)
+            get_from_xml(apk_file, app_obj, logger)
         data_dictionary = {
             "req_permissions": req_permissions, "activities": activities,
             "services": services, "providers": providers,
@@ -42,8 +41,9 @@ def process_apk(apk_file, features_out_dir, logger):
         data_dictionary = {k: list(v) for k, v in data_dictionary.items()}
 
         if features_out_dir is not None:
-            filename_data = generate_filepath(apk_file, "json",
-                                              features_out_dir)
+            filename_data = os.path.join(
+                features_out_dir,
+                os.path.splitext(os.path.basename(apk_file))[0] + ".json")
             with open(filename_data, "w") as f:
                 json.dump(data_dictionary, f)
 
@@ -61,9 +61,9 @@ def process_apk(apk_file, features_out_dir, logger):
                 data_dictionary[k] if data_dictionary[k]]
 
 
-def get_from_xml(apk_file, app_obj, features_out_dir, logger):
+def get_from_xml(apk_file, app_obj, logger):
 
-    filename_xml = generate_filepath(apk_file, "xml", features_out_dir)
+    filename_xml = f"{apk_file}.xml"
 
     req_permissions = set()
     activities = set()
