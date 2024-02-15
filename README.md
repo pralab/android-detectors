@@ -50,6 +50,7 @@ If you don't want to use Docker, it is recommended to create a new environment, 
 conda create -n android python=3.9
 conda activate android
 pip install -r ./requirements.txt
+export PYTHONPATH="${PYTHONPATH}:src"
 python3 elsa-benchmarks/drebin_track_3.py
 ```
 
