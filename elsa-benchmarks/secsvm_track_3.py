@@ -5,6 +5,14 @@ from src.models.utils import *
 
 
 if __name__ == "__main__":
+    """
+    NB: in this example, the pre-extracted features are used. Alternatively,
+    the APK file paths can be passed to the classifier.
+    To fit the model, you can use `classifier.extract_features` to get the
+    features and then pass them to `classifier.fit`.
+    To classify the APK files, you can directly pass the list containing the
+    file paths to `classifier.classify`.
+    """
     classifier = SecSVM(C=0.1, lb=-0.5, ub=0.5)
 
     base_path = os.path.dirname(__file__)
