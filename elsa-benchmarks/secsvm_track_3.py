@@ -18,9 +18,9 @@ if __name__ == "__main__":
     base_path = os.path.dirname(__file__)
 
     clf_path = os.path.join(
-        base_path, "../pretrained/secsvm_vectorizer.pkl")
-    vect_path = os.path.join(
         base_path, "../pretrained/secsvm_classifier.pkl")
+    vect_path = os.path.join(
+        base_path, "../pretrained/secsvm_vectorizer.pkl")
 
     if os.path.exists(clf_path) and os.path.exists(vect_path):
         classifier = SecSVM.load(vect_path, clf_path)
