@@ -18,9 +18,9 @@ if __name__ == "__main__":
     base_path = os.path.dirname(__file__)
 
     clf_path = os.path.join(
-        base_path, "../pretrained/drebin_vectorizer.pkl")
-    vect_path = os.path.join(
         base_path, "../pretrained/drebin_classifier.pkl")
+    vect_path = os.path.join(
+        base_path, "../pretrained/drebin_vectorizer.pkl")
 
     if os.path.exists(clf_path) and os.path.exists(vect_path):
         classifier = DREBIN.load(vect_path, clf_path)
