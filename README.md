@@ -10,4 +10,10 @@ End-to-end implementation of ML-based Android malware detectors.
 
 The implemented detectors serve as baselines for the [benchmarks](https://benchmarks.elsa-ai.eu/?ch=6) hosted in the Cybersecurity Use Case of the ELSA EU project.
 This repository should be used as a starting point to build a model.
-A step-by-step guide for each evaluation track can can be found in [this repository](https://github.com/pralab/elsa-cybersecurity).
+A step-by-step guide for each evaluation track can be found in [this repository](https://github.com/pralab/elsa-cybersecurity).
+
+Pre-trained models (on data provided on the [ELSA benchmarks website](https://benchmarks.elsa-ai.eu/?ch=6&com=downloads)) can also be downloaded from Drive:
+- [DREBIN](https://drive.google.com/drive/folders/118Eb_KoW6vE38aqDY0MmVfHUtLOwO8Vk?usp=sharing)
+- [SecSVM](https://drive.google.com/drive/folders/1pSO0UWvBJsrkIgshYkHwR3OqR_slZGBH?usp=sharing)
+
+The downloaded files must be placed in the `pretrained` folder.
