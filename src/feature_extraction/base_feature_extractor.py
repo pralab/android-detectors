@@ -6,7 +6,7 @@ class BaseFeatureExtractor:
     def __init__(self):
         self._features_out_dir = None
 
-    def extract_features(self, apk_list, timeout=100, out_dir=None):
+    def extract_features(self, apk_list, timeout=600, out_dir=None):
         """
 
         Parameters
