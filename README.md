@@ -13,7 +13,7 @@ This repository should be used as a starting point to build a model.
 A step-by-step guide for each evaluation track can be found in [this repository](https://github.com/pralab/elsa-cybersecurity).
 
 Pre-trained models (on data provided on the [ELSA benchmarks website](https://benchmarks.elsa-ai.eu/?ch=6&com=downloads)) can also be downloaded from Drive:
-- [DREBIN](https://drive.google.com/drive/folders/118Eb_KoW6vE38aqDY0MmVfHUtLOwO8Vk?usp=sharing)
-- [SecSVM](https://drive.google.com/drive/folders/1pSO0UWvBJsrkIgshYkHwR3OqR_slZGBH?usp=sharing)
+- [DREBIN](https://drive.google.com/drive/folders/1EkOpO88p2FOW1NL5H_AbB4EKgfHeynIA?usp=sharing)
+- [SecSVM](https://drive.google.com/drive/folders/11AY4ZQH0pExjEhCvFo3J6FpojnR2zWXE?usp=sharing)
 
 The downloaded files must be placed in the `pretrained` folder.
