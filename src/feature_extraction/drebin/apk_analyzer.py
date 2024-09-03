@@ -9,6 +9,7 @@ import lxml.etree
 from androguard.core.bytecodes import apk
 from androguard.core.bytecodes import dvm
 import validators
+import hashlib
 
 """
 Part of the following code was taken from:
@@ -209,12 +210,17 @@ def get_from_instructions(app_obj, logger):
             logger.debug(f"instruct error: {inst_match_err}")
 
     def parse_url(instruction):
+        # URLs are obfuscated with md5 hash to avoid releasing sensitive data
         url = re.search(url_pattern, instruction)
         if url:  # we could validate urls but we may miss special f-strings
-            url_domains.add(url.group())
+            url_hash = hashlib.md5(
+                url.group().encode()).hexdigest()
+            url_domains.add(url_hash)
         ip = re.search(ip_pattern, instruction)
         if ip and validators.ipv4(ip.group()):
-            url_domains.add(ip.group())
+            ip_hash = hashlib.md5(
+                ip.group().encode()).hexdigest()
+            url_domains.add(ip_hash)
 
     for dex_name in app_obj.get_dex_names():
         try:
