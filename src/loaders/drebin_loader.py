@@ -16,7 +16,6 @@ def load():
     classifier = DREBIN(C=0.1)
 
     model_base_path = os.path.join(os.path.dirname(models.__file__), "../..")
-    base_path = os.path.join(os.path.dirname(__file__))
 
     clf_path = os.path.join(
         model_base_path, "pretrained/drebin_classifier.pkl")
@@ -26,11 +25,9 @@ def load():
     if os.path.exists(clf_path) and os.path.exists(vect_path):
         classifier = DREBIN.load(vect_path, clf_path)
     else:
-        features_tr = load_features(
-            os.path.join(base_path, "../data/training_set_features.zip"))
-        y_tr = load_labels(
-            os.path.join(base_path, "../data/training_set_features.zip"),
-            os.path.join(base_path, "../data/training_set.zip"))
+        features_tr = load_features("data/training_set_features.zip")
+        y_tr = load_labels("data/training_set_features.zip",
+                           "data/training_set.zip")
         classifier.fit(features_tr, y_tr)
         classifier.save(vect_path, clf_path)
 
