@@ -25,8 +25,7 @@ def load():
     if os.path.exists(clf_path) and os.path.exists(vect_path):
         classifier = SecSVM.load(vect_path, clf_path)
     else:
-        features_tr = load_features(
-            os.path.join("data/training_set_features.zip"))
+        features_tr = load_features("data/training_set_features.zip")
         y_tr = load_labels("data/training_set_features.zip",
                            "data/training_set.zip")
         classifier.fit(features_tr, y_tr)
