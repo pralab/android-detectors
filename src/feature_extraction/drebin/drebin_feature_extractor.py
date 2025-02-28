@@ -57,3 +57,7 @@ class DREBINFeatureExtractor(BaseFeatureExtractor):
         self.logger = logging.getLogger()
         self.logger.addHandler(error_handler)
         logging.getLogger("androguard.dvm").setLevel(logging.CRITICAL)
+        logging.getLogger("androguard.core.api_specific_resources").setLevel(
+            logging.CRITICAL)
+        logging.getLogger("androguard.axml").setLevel(logging.CRITICAL)
+        logging.getLogger("androguard.apk").setLevel(logging.CRITICAL)
