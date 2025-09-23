@@ -1,15 +1,6 @@
 class BaseModel:
     """
-    Interface for models to be submitted in the ELSA Cybersecurity benchmark.
-
-    - Track 1 - Adversarial Robustness to Feature-space Attacks
-      Requested Methods/Properties: predict, input_features
-
-    - Track 2: Adversarial Robustness to Problem-space Attacks
-      Requested Methods: classify
-
-    - Track 3: Temporal Robustness to Data Drift
-      Requested Methods: classify
+    Base interface for detectors.
     """
 
     def predict(self, features):

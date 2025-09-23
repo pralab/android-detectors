@@ -1,10 +1,10 @@
 import os
 import models
 from models import SecSVM
-from models.utils import *
+from models.drebin.utils import *
 
 
-def load():
+def load(data_path=None, dataset="elsa"):
     """
     NB: in this example, the pre-extracted features are used. Alternatively,
     the APK file paths can be passed to the classifier.
@@ -15,19 +15,22 @@ def load():
     """
     classifier = SecSVM(C=0.1, lb=-0.5, ub=0.5)
 
-    model_base_path = os.path.join(os.path.dirname(models.__file__), "../..")
+    if data_path is None:
+        data_path = os.path.join(os.path.dirname(models.__file__), "../..")
 
     clf_path = os.path.join(
-        model_base_path, "pretrained/secsvm_classifier.pkl")
+        data_path, f"{dataset}/pretrained/secsvm_classifier.pkl")
     vect_path = os.path.join(
-        model_base_path, "pretrained/secsvm_vectorizer.pkl")
+        data_path, f"{dataset}/pretrained/secsvm_vectorizer.pkl")
 
     if os.path.exists(clf_path) and os.path.exists(vect_path):
         classifier = SecSVM.load(vect_path, clf_path)
     else:
-        features_tr = load_features("data/training_set_features.zip")
-        y_tr = load_labels("data/training_set_features.zip",
-                           "data/training_set.zip")
+        features_tr = load_features(
+            os.path.join(data_path, f"{dataset}/drebin/training_set_features.zip"))
+        y_tr = load_labels(
+            os.path.join(data_path, f"{dataset}/drebin/training_set_features.zip"),
+            os.path.join(data_path, f"{dataset}/training_set.zip"))
         classifier.fit(features_tr, y_tr)
         classifier.save(vect_path, clf_path)
 

@@ -5,6 +5,10 @@ from feature_extraction import DREBINFeatureExtractor
 import logging
 
 
+def tkn(x):
+    return x
+
+
 class BaseDREBIN(BaseModel):
     """
     Base class for any scikit-learn or secml classifier that can be trained on
@@ -18,7 +22,7 @@ class BaseDREBIN(BaseModel):
     def __init__(self):
         self._vectorizer = CountVectorizer(
             input="content", lowercase=False,
-            tokenizer=lambda x: x, binary=True, token_pattern=None)
+            tokenizer=tkn, binary=True, token_pattern=None)
         self._feat_extractor = DREBINFeatureExtractor(
             logging_level=logging.ERROR)
         self._input_features = None
@@ -105,6 +109,7 @@ class BaseDREBIN(BaseModel):
             classifier = pkl.load(f)
         with open(vectorizer_path, "rb") as f:
             classifier._vectorizer = pkl.load(f)
+            classifier._vectorizer.tokenizer = tkn
         return classifier
 
     @property

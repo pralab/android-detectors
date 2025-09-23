@@ -1,42 +1,41 @@
-from utils.multiprocessing import killer_pmap
+"""Implementation of the Android base feature extractor class."""
+
+from typing import Optional
+
+import ray
 
 
 class BaseFeatureExtractor:
+    """Base class for Android feature extractors."""
 
-    def __init__(self):
+    def __init__(self) -> None:
+        """Create and initialize the feature extractor."""
         self._features_out_dir = None
 
-    def extract_features(self, apk_list, timeout=600, out_dir=None):
+    def extract_features(
+        self, apk_list: list[str], out_dir: Optional[str] = None
+    ) -> list[list[str]]:
         """
+        Extract features from a list of APK files.
 
         Parameters
         ----------
-        apk_list : list of str
+        apk_list : list[str]
             List with the absolute path of each APK file from which to extract
-            the features.
-        timeout : int
-            Maximum allowed time in seconds for processing each APK file. Must
-            be greater than 10. If the timeout is exceeded, the feature
-            extraction for that file is skipped, and the filename is appended
-            to `apks_not_processed.txt`.
         out_dir : str or None
             If provided, the extracted features are saved in this directory.
+
         Returns
         -------
-        iterable
-            An iterable containing the extracted features.
+        list[list[str]]
+            A list containing the extracted features for each APK file.
         """
-
-        if not isinstance(timeout, int):
-            raise ValueError("the timeout variable must be an Integer")
-        elif timeout < 10:
-            raise ValueError("the timeout variable must be greater than 10sec")
-
         self._features_out_dir = out_dir
 
-        return killer_pmap(self._extract_features, apk_list, timeout=timeout)
+        return ray.get([self._extract_features.remote(self, apk) for apk in apk_list])
 
-    def _extract_features(self, apk):
+    @ray.remote
+    def _extract_features(self, apk: str) -> list[str] | None:
         """
 
         Parameters
