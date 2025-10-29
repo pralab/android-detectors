@@ -13,3 +13,20 @@ Pre-trained models (on the [ELSA dataset](https://benchmarks.elsa-ai.eu/?ch=6&co
 - [SecSVM](https://drive.google.com/drive/folders/11AY4ZQH0pExjEhCvFo3J6FpojnR2zWXE?usp=sharing)
 
 The downloaded files must be placed in the `pretrained` folder.
+
+---
+
+### Checklist to enable discovery
+
+
+1. Place each model under `models/<key>/` with a Dockerfile. The image must have Python and pip available.
+2. Subclass AbstracModel and implement all the asbtract methods.
+3. (Optional) Add `models/<key>/init_schema.py`:
+```python
+# detectors/<key>/init_schema.py
+from pydantic import BaseModel
+class InitSchema(BaseModel):
+    # your typed constructor fields here
+    ...
+```
+4. Call `auto_discover_models(REPO)` before creating any models.
