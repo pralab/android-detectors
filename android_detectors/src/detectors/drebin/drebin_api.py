@@ -1,27 +1,23 @@
-from sklearn.utils._array_api import get_namespace
-from detectors.drebin.base_drebin import BaseDREBIN
-from sklearn.svm import LinearSVC
+# Auto-generated stub.
 from pydantic import validate_call
+from core.dockerized_detector import DockerizedDetector
+from core.types import *
 
 
-class DREBIN(BaseDREBIN, LinearSVC):
+class DREBIN(DockerizedDetector):
     """
     Implements the DREBIN classifier from:
       Arp, Daniel, et al. "Drebin: Effective and explainable detection of
       android malware in your pocket." NDSS 2014.
       https://www.ndss-symposium.org/wp-content/uploads/2017/09/11_3_1.pdf
     """
+    name = "drebin"
+    implementation_module = "drebin"
+    implementation_class = "DREBIN"
+    image_tag = "drebin:latest"
 
     @validate_call
-    def __init__(
-        self,
-        tol: float = 1e-4,
-        C: float = 0.1,
-        class_weight: dict | str | None = None,
-        verbose: int = 0,
-        random_state: int = 0,
-        max_iter: int = 1000
-    ):
+    def __init__(self, tol: float=0.0001, C: float=0.1, class_weight: dict | str | None=None, verbose: int=0, random_state: int=0, max_iter: int=1000):
         """
 
         Parameters
@@ -52,24 +48,42 @@ class DREBIN(BaseDREBIN, LinearSVC):
         max_iter : int, default=1000
             The maximum number of iterations to be run.
         """
-        BaseDREBIN.__init__(self)
-        LinearSVC.__init__(
-            self, tol=tol, C=C, fit_intercept=False, class_weight=class_weight,
-            verbose=verbose, random_state=random_state, max_iter=max_iter)
+        super().__init__(tol, C, class_weight, verbose, random_state, max_iter)
 
-    def _train(self, X, y):
-        LinearSVC.fit(self, X, y)
-    
-    def predict(
-        self,
-        features: list[str]
-    ) -> tuple[list[int], list[float]]:
-        X = self._vectorizer.transform(features)
-        xp, _ = get_namespace(X)
-        scores = self.decision_function(X)
-        if len(scores.shape) == 1:
-            indices = xp.astype(scores > 0, int)
-        else:
-            indices = xp.argmax(scores, axis=1)
+    @validate_call
+    def train(self, apk_paths: list[HostFilePath] | None=None, labels: list[int] | None=None, features_zip: ContainerFilePath | None=None, dataset_file_zip: ContainerFilePath | None=None):
+        """
+        Parameters
+        ----------
+        apk_paths
+        labels
+        features_zip
+        dataset_file_zip
+        """
+        return super().train(apk_paths, labels, features_zip, dataset_file_zip)
 
-        return xp.take(self.classes_, indices, axis=0).tolist(), scores.tolist()
+    @validate_call
+    def load(self, classifier_path: ContainerFilePath, vectorizer_path: ContainerFilePath) -> None:
+        """
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        BaseDREBIN
+        """
+        return super().load(classifier_path, vectorizer_path)
+
+    @validate_call
+    def save(self, classifier_path: ContainerFilePath, vectorizer_path: ContainerFilePath) -> None:
+        """
+
+        Parameters
+        ----------
+        """
+        return super().save(classifier_path, vectorizer_path)
+
+    @validate_call(validate_return=True)
+    def classify(self, apk_paths: list[HostFilePath] | None=None, features_zip: ContainerFilePath | None=None) -> tuple[list[int], list[float]]:
+        return super().classify(apk_paths, features_zip)

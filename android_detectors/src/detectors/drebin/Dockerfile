@@ -1,7 +1,9 @@
 FROM python:3.10
 
 WORKDIR /app
-COPY . /app
+COPY ./requirements.txt /app
+RUN pip install -r ./requirements.txt
+COPY ./src/detectors/drebin/requirements.txt /app
 RUN pip install -r ./requirements.txt
 
-RUN pip install -r ./src/detectors/drebin/requirements.txt
+COPY . /app
