@@ -133,3 +133,4 @@ dmypy.json
 *.pkl
 *.zip
 *.json
+data
