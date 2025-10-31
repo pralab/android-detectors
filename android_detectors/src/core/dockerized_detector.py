@@ -9,7 +9,23 @@ from threading import Thread
 import os
 from config import *
 import inspect
+from pydantic import validate_call
 from core.base_detector import BaseDetector
+
+
+class ValidateCallMeta(type):
+    def __new__(cls, *args, **kwargs):
+        cls = super().__new__(cls, *args, **kwargs)
+        for method_name in DETECTOR_INTERFACE:
+            if hasattr(cls, method_name):
+                attr = getattr(cls, method_name)
+                if callable(attr) and inspect.isfunction(
+                    getattr(cls, method_name, None)) or inspect.ismethod(attr):
+                    if not getattr(attr, "_pydantic_validated", False):
+                        wrapped = validate_call(attr, validate_return=True)
+                        setattr(wrapped, "_pydantic_validated", True)
+                        setattr(cls, method_name, wrapped)
+        return cls
 
 
 def _get_payload_from_args(method, *args, **kwargs) -> dict:
@@ -28,12 +44,12 @@ def _get_payload_from_args(method, *args, **kwargs) -> dict:
 
 
 def _stream_logs(container):
-    for line in container.logs(stream=True, follow=True):
-        decoded = line.decode("utf-8")
-        sys.stdout.write(decoded)
+    for raw in container.logs(stream=True, follow=True, stdout=True, stderr=True):
+        line = raw.decode('utf-8', errors='replace').rstrip('\n')
+        print(f"[{container.name}] {line}")
 
 
-class DockerizedDetector(BaseDetector):
+class DockerizedDetector(metaclass=ValidateCallMeta):
     name: str
     implementation_module: str
     implementation_class: str
@@ -62,7 +78,7 @@ class DockerizedDetector(BaseDetector):
         command = self._build_bootstrap_command()
 
         module_path = str(self._module_dir.relative_to(
-            PROJECT_ROOT) / self.implementation_module).replace(
+            HOST_PROJECT_ROOT) / self.implementation_module).replace(
             os.sep, ".")
         implementation_class = (
             f"{module_path}:{self.implementation_class}")
@@ -70,7 +86,8 @@ class DockerizedDetector(BaseDetector):
         env = {
             DOCKERIZED: "1",
             RUNNING_IN_CONTAINER: "1",
-            DETECTOR_CLASS: implementation_class
+            DETECTOR_CLASS: implementation_class,
+            PYTHONPATH: CONTAINER_SRC_ROOT
         }
 
         HOST_SHARED_RO_DATA.mkdir(parents=True, exist_ok=True)
@@ -199,7 +216,7 @@ class DockerizedDetector(BaseDetector):
         if r.content and r.json():
             response = r.json()
             if isinstance(response, dict):
-                return tuple(dict.values())
+                return tuple(response.values())
             elif isinstance(response, (list, tuple, set)):
                 return tuple(response)
             else:
@@ -209,7 +226,7 @@ class DockerizedDetector(BaseDetector):
     def _ensure_image_sdk(self) -> None:
         try:
             _, logs = self._docker.images.build(
-                path=str(PROJECT_ROOT),
+                path=str(HOST_PROJECT_ROOT),
                 dockerfile=str(self._module_dir / "Dockerfile"),
                 tag=self.image_tag,
                 rm=True,
@@ -231,8 +248,7 @@ class DockerizedDetector(BaseDetector):
         self,
     ) -> list[str]:
         py_code = (
-            f"import sys, uvicorn, importlib\n"
-            f"sys.path.append('/app/src')\n"
+            f"import uvicorn, importlib\n"
             f"app = importlib.import_module('core.server').app\n"
             f"uvicorn.run(app, host='0.0.0.0', port=8000)\n"
         )

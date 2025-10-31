@@ -490,7 +490,6 @@ def render_class(
 ) -> str:
     lines: List[str] = [
         "# Auto-generated stub.",
-        "from pydantic import validate_call",
         "from core.dockerized_detector import DockerizedDetector",
         "from core.types import *",
         "",

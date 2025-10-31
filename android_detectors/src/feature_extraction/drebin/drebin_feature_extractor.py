@@ -56,26 +56,33 @@ class DREBINFeatureExtractor(BaseFeatureExtractor):
         return [f"{k}::{v}" for k in js for v in js[k] if js[k]]
 
     def _set_logger(self, logging_level: int) -> None:
-        logging.basicConfig(
-            level=logging_level,
-            filename="apk_analysis.log",
-            filemode="a",
-            format="%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s: "
-            "%(message)s",
-            datefmt="%Y/%m/%d %H:%M:%S",
-        )
-        error_handler = logging.StreamHandler()
-        error_handler.setLevel(logging.ERROR)
-        error_handler.setFormatter(
+        root = logging.getLogger()
+        root.setLevel(logging.DEBUG)
+
+        for h in list(root.handlers):
+            root.removeHandler(h)
+            h.close()
+
+        fh = logging.FileHandler("apk_analysis.log", mode="a", encoding="utf-8")
+        fh.setLevel(logging.DEBUG)
+        fh.setFormatter(
             logging.Formatter(
-                "%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s: %(message)s"
+                "%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s: %(message)s",
+                datefmt="%Y/%m/%d %H:%M:%S",
             )
         )
-        self.logger = logging.getLogger()
-        self.logger.addHandler(error_handler)
-        logging.getLogger("androguard.dvm").setLevel(logging.CRITICAL)
-        logging.getLogger("androguard.core.api_specific_resources").setLevel(
-            logging.CRITICAL
+        root.addHandler(fh)
+
+        sh = logging.StreamHandler()
+        sh.setLevel(logging_level)
+        sh.setFormatter(
+            logging.Formatter("%(asctime)s %(levelname)s: %(message)s", "%H:%M:%S")
         )
+        root.addHandler(sh)
+
+        logging.getLogger("androguard.dvm").setLevel(logging.CRITICAL)
+        logging.getLogger("androguard.core.api_specific_resources").setLevel(logging.CRITICAL)
         logging.getLogger("androguard.axml").setLevel(logging.CRITICAL)
         logging.getLogger("androguard.apk").setLevel(logging.CRITICAL)
+
+        self.logger = root

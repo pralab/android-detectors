@@ -7,20 +7,12 @@ class BaseDetector(ABC):
     Abstract base class that defines the mandatory interface for all ML
     detectors.
 
-    Concrete implementations (that will run inside containers) must subclass
-    this class. The host-side `RemoteDetector` also inherits this class to
-    satisfy static type checkers and provide a consistent API to the main
-    program.
+    Concrete implementations must subclass this class, and can add their
+    specific parameters to each method.
     """
 
     @abstractmethod
     def __init__(self, *args, **kwargs):
-        """
-        Construct a model with model-specific keyword arguments.
-
-        Parameters
-        ----------
-        """
         raise NotImplementedError
 
     @abstractmethod
@@ -35,6 +27,11 @@ class BaseDetector(ABC):
 
         Parameters
         ----------
+        apk_paths: list[str]
+            The path of the APK files to be used for training the model.
+            If the detector is containerized, you can pass the path on the
+            host, and the files will be automatically make available with RO
+            access to the container thanks to the HostFilePath type annotation.
 
         """
         raise NotImplementedError

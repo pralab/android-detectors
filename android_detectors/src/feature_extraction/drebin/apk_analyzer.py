@@ -89,12 +89,10 @@ def get_from_xml(apk_file, app_obj, logger):
     intent_filters = set()
     try:
         apk_file = os.path.abspath(apk_file)
-        with open(filename_xml, "w") as f:
-            f.write(
-                lxml.etree.tostring(
-                    app_obj.xml["AndroidManifest.xml"], pretty_print=True
-                ).decode()
-            )
+        xml_bytes = lxml.etree.tostring(
+            app_obj.xml["AndroidManifest.xml"], pretty_print=True
+        )
+        xml_text = xml_bytes.decode("utf-8")
     except Exception as e:
         logger.debug(e)
         logger.debug(f"error while reading {apk_file} AndroidManifest.xml")
@@ -102,9 +100,7 @@ def get_from_xml(apk_file, app_obj, logger):
             os.remove(filename_xml)
         return
     try:
-        with open(filename_xml, "r") as f:
-            dom = minidom.parse(f)
-
+        dom = minidom.parseString(xml_text)
         dom_collection = dom.documentElement
 
         dom_permission = dom_collection.getElementsByTagName("uses-permission")

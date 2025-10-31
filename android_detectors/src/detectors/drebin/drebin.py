@@ -1,7 +1,6 @@
 from sklearn.utils._array_api import get_namespace
 from detectors.drebin.base_drebin import BaseDREBIN
 from sklearn.svm import LinearSVC
-from pydantic import validate_call
 
 
 class DREBIN(BaseDREBIN, LinearSVC):
@@ -11,8 +10,6 @@ class DREBIN(BaseDREBIN, LinearSVC):
       android malware in your pocket." NDSS 2014.
       https://www.ndss-symposium.org/wp-content/uploads/2017/09/11_3_1.pdf
     """
-
-    @validate_call
     def __init__(
         self,
         tol: float = 1e-4,

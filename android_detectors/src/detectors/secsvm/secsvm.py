@@ -1,5 +1,4 @@
 from secml.array import CArray
-from secml.core.constants import inf
 from secml.ml.classifiers import CClassifierSVM
 from secml.ml.classifiers.clf_utils import convert_binary_labels
 from detectors.drebin.base_drebin import BaseDREBIN
@@ -46,8 +45,8 @@ class SecSVM(BaseDREBIN, CClassifierSVM):
         Tolerance of the stop criterion of the gradient descent. Default 1e-4.
     """
 
-    def __init__(self, C=0.1, kernel=None, class_weight=None, ub=inf,
-                 idx_ub=None, lb=-inf, idx_lb=None, eta=0.5, max_it=1e4,
+    def __init__(self, C=0.1, kernel=None, class_weight=None, ub=float("inf"),
+                 idx_ub=None, lb=float("-inf"), idx_lb=None, eta=0.5, max_it=1e4,
                  eps=1e-4):
 
         BaseDREBIN.__init__(self)

@@ -1,5 +1,4 @@
 # Auto-generated stub.
-from pydantic import validate_call
 from core.dockerized_detector import DockerizedDetector
 from core.types import *
 
@@ -16,7 +15,6 @@ class DREBIN(DockerizedDetector):
     implementation_class = "DREBIN"
     image_tag = "drebin:latest"
 
-    @validate_call
     def __init__(self, tol: float=0.0001, C: float=0.1, class_weight: dict | str | None=None, verbose: int=0, random_state: int=0, max_iter: int=1000):
         """
 
@@ -50,7 +48,6 @@ class DREBIN(DockerizedDetector):
         """
         super().__init__(tol, C, class_weight, verbose, random_state, max_iter)
 
-    @validate_call
     def train(self, apk_paths: list[HostFilePath] | None=None, labels: list[int] | None=None, features_zip: ContainerFilePath | None=None, dataset_file_zip: ContainerFilePath | None=None):
         """
         Parameters
@@ -62,7 +59,6 @@ class DREBIN(DockerizedDetector):
         """
         return super().train(apk_paths, labels, features_zip, dataset_file_zip)
 
-    @validate_call
     def load(self, classifier_path: ContainerFilePath, vectorizer_path: ContainerFilePath) -> None:
         """
 
@@ -75,7 +71,6 @@ class DREBIN(DockerizedDetector):
         """
         return super().load(classifier_path, vectorizer_path)
 
-    @validate_call
     def save(self, classifier_path: ContainerFilePath, vectorizer_path: ContainerFilePath) -> None:
         """
 
@@ -84,6 +79,5 @@ class DREBIN(DockerizedDetector):
         """
         return super().save(classifier_path, vectorizer_path)
 
-    @validate_call(validate_return=True)
     def classify(self, apk_paths: list[HostFilePath] | None=None, features_zip: ContainerFilePath | None=None) -> tuple[list[int], list[float]]:
         return super().classify(apk_paths, features_zip)

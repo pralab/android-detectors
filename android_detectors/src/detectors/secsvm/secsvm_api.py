@@ -1,5 +1,4 @@
 # Auto-generated stub.
-from pydantic import validate_call
 from core.dockerized_detector import DockerizedDetector
 from core.types import *
 
@@ -49,10 +48,9 @@ class SecSVM(DockerizedDetector):
     implementation_class = "SecSVM"
     image_tag = "sec_svm:latest"
 
-    def __init__(self, C=0.1, kernel=None, class_weight=None, ub=inf, idx_ub=None, lb=-inf, idx_lb=None, eta=0.5, max_it=10000.0, eps=0.0001):
+    def __init__(self, C=0.1, kernel=None, class_weight=None, ub=float('inf'), idx_ub=None, lb=float('-inf'), idx_lb=None, eta=0.5, max_it=10000.0, eps=0.0001):
         super().__init__(C, kernel, class_weight, ub, idx_ub, lb, idx_lb, eta, max_it, eps)
 
-    @validate_call
     def train(self, apk_paths: list[HostFilePath] | None=None, labels: list[int] | None=None, features_zip: ContainerFilePath | None=None, dataset_file_zip: ContainerFilePath | None=None):
         """
         Parameters
@@ -64,7 +62,6 @@ class SecSVM(DockerizedDetector):
         """
         return super().train(apk_paths, labels, features_zip, dataset_file_zip)
 
-    @validate_call
     def load(self, classifier_path: ContainerFilePath, vectorizer_path: ContainerFilePath) -> None:
         """
 
@@ -77,7 +74,6 @@ class SecSVM(DockerizedDetector):
         """
         return super().load(classifier_path, vectorizer_path)
 
-    @validate_call
     def save(self, classifier_path: ContainerFilePath, vectorizer_path: ContainerFilePath) -> None:
         """
 
@@ -86,6 +82,5 @@ class SecSVM(DockerizedDetector):
         """
         return super().save(classifier_path, vectorizer_path)
 
-    @validate_call(validate_return=True)
     def classify(self, apk_paths: list[HostFilePath] | None=None, features_zip: ContainerFilePath | None=None) -> tuple[list[int], list[float]]:
         return super().classify(apk_paths, features_zip)

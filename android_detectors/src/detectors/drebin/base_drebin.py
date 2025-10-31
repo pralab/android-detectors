@@ -8,7 +8,6 @@ import pandas as pd
 from zipfile import ZipFile, ZIP_DEFLATED
 from feature_extraction import DREBINFeatureExtractor
 import logging
-from pydantic import validate_call
 from pathlib import Path
 
 
@@ -34,7 +33,6 @@ class BaseDREBIN(BaseDetector, ABC):
             logging_level=logging.ERROR)
         self._input_features = None
 
-    @validate_call
     def train(
         self,
         apk_paths: list[HostFilePath] | None = None,
@@ -91,7 +89,6 @@ class BaseDREBIN(BaseDetector, ABC):
     ) -> tuple[list[int], list[float]]:
         pass
 
-    @validate_call
     def extract_features(
         self,
         apk_list: list[HostFilePath]
@@ -111,7 +108,6 @@ class BaseDREBIN(BaseDetector, ABC):
         """
         return self._feat_extractor.extract_features(apk_list)
 
-    @validate_call(validate_return=True)
     def classify(
         self,
         apk_paths: list[HostFilePath] | None = None,
@@ -126,7 +122,6 @@ class BaseDREBIN(BaseDetector, ABC):
                 "You must provide either `apk_paths` or `features_zip`")
         return self.predict(features)
 
-    @validate_call
     def save(
         self,
         classifier_path: ContainerFilePath,
@@ -145,7 +140,6 @@ class BaseDREBIN(BaseDetector, ABC):
             pkl.dump(self, f)
         self._vectorizer = vectorizer
 
-    @validate_call
     def load(
         self,
         classifier_path: ContainerFilePath,
