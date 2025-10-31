@@ -1,3 +1,20 @@
+"""
+This module contains type annotations that are used to convert the host file
+paths, allowing the containerized detectors to safely read/write files from the
+host filesystem. To perform the conversion, they must be used for typing the
+path arguments in the method. They are then applied by Pydantic, using the
+`validate_call` decorator on each method. They will be only applied when
+invoked from a containerized detector proxy from the host. Otherwise, they will
+keep the paths unaltered.
+
+`HostFilePath` allows reading-only the host files from the container. To do so,
+it creates links to the host files inside a folder mounted in read-only mode in
+the container's `/shared` folder.
+
+`ContainerFilePath` allows the container to read and write from a folder
+`data/{detector_name}` inside this project's root, which is bind inside the
+container's `data/` folder.
+"""
 from pydantic import AfterValidator
 from typing import Annotated
 import os

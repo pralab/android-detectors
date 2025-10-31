@@ -2,6 +2,7 @@ import time
 from typing import Callable, Any
 import httpx
 import docker
+from docker.models.containers import Container
 from docker.types import Mount
 from docker.errors import APIError, BuildError, NotFound
 import sys
@@ -10,10 +11,15 @@ import os
 from config import *
 import inspect
 from pydantic import validate_call
-from core.base_detector import BaseDetector
 
 
 class ValidateCallMeta(type):
+    """
+    This metaclass force the methods exposed by dockerized detectors to
+    use the `validate_call` decorator from Pydantic. This is needed to convert
+    the host file paths, allowing the containerized detectors to safely
+    read/write files from the host filesystem.
+    """
     def __new__(cls, *args, **kwargs):
         cls = super().__new__(cls, *args, **kwargs)
         for method_name in DETECTOR_INTERFACE:
@@ -28,7 +34,24 @@ class ValidateCallMeta(type):
         return cls
 
 
-def _get_payload_from_args(method, *args, **kwargs) -> dict:
+def _get_payload_from_args(
+    method: Callable,
+    *args: Any,
+    **kwargs: Any,
+) -> dict:
+    """
+    This function returns all the arguments passed to a function/method in a
+    dictionary with parameter names as keys and arguments as values.
+
+    Parameters
+    ----------
+    method : Callable
+        The function/method reference
+    *args : Any
+        The positional arguments passed to the function/method
+    **kwargs : Any
+        The keyword arguments passed to the function/method
+    """
     # Get the signature of the method
     sig = inspect.signature(method)
     # Bind the arguments to the signature
@@ -43,17 +66,48 @@ def _get_payload_from_args(method, *args, **kwargs) -> dict:
     return payload
 
 
-def _stream_logs(container):
+def _stream_logs(
+    container: Container
+):
+    """
+    Prints the output logs of the program running inside the container in the
+    main program output log.
+
+    Parameters
+    ----------
+    container : Container
+        The container from which to stream the output logs.
+    """
     for raw in container.logs(stream=True, follow=True, stdout=True, stderr=True):
         line = raw.decode('utf-8', errors='replace').rstrip('\n')
         print(f"[{container.name}] {line}")
 
 
 class DockerizedDetector(metaclass=ValidateCallMeta):
+    """
+    This class allows running a `BaseDetector` inside a separate docker
+    container, and communicating with it without altering its client-side
+    interface.
+
+    Attributes
+    ----------
+    name : str
+        A representative name for the detector. It will be automatically set as
+        its snake case class name.
+    implementation_module: str
+        The name of the module inside the detector package containing its
+        concrete implementation. It will be automatically set.
+    implementation_class: str
+        The name of the class containing the detector concrete implementation.
+        It will be automatically set.
+    image_tag: str
+        The name of the docker image that will be used for each object-level
+        container of the detector. It will be automatically set.
+    """
     name: str
     implementation_module: str
     implementation_class: str
-    image_tag: str | None = None
+    image_tag: str
 
     def __init__(self, *args, **kwargs) -> None:
 

@@ -1,3 +1,8 @@
+"""
+This module contains the FastAPI application that runs inside each docker
+container associated with a detector instance. It holds the detector object
+and exposes via POST APIs its main methods.
+"""
 import importlib
 import os
 from typing import Any

@@ -1,1 +1,1 @@
-from secsvm_api import SecSVM
+from .secsvm_api import SecSVM
