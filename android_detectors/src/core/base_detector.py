@@ -19,6 +19,7 @@ class BaseDetector(ABC):
     def train(
         self,
         apk_paths: list[HostFilePath],
+        labels: list[int],
         *args,
         **kwargs
     ):
@@ -34,6 +35,9 @@ class BaseDetector(ABC):
             host, and the files will be automatically make available with RO
             access to the container thanks to the HostFilePath type annotation.
             Otherwise, the path will be kept unaltered.
+        labels: list[int]
+            The ground-truth binary labels corresponding to each training set
+            sample.
         """
         raise NotImplementedError
 

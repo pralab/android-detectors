@@ -1,2 +1,2 @@
-from .drebin_api import DREBIN
+from .drebin_dockerized import DREBIN
 

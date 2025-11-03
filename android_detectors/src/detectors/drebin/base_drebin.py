@@ -9,6 +9,7 @@ from zipfile import ZipFile, ZIP_DEFLATED
 from feature_extraction import DREBINFeatureExtractor
 import logging
 from pathlib import Path
+from typing import Generator, Iterable
 
 
 def tkn(x):
@@ -41,17 +42,33 @@ class BaseDREBIN(BaseDetector, ABC):
         dataset_file_zip: ContainerFilePath | None = None,
     ):
         """
+        Trains the model on the given data. It accepts either a list of APK file
+        paths and their corresponding labels, or the compressed features and
+        dataset metadata files.
+
         Parameters
         ----------
-        apk_paths
-        labels
-        features_zip
-        dataset_file_zip
+        apk_paths: list[str]
+            The path of the APK files to be used for training the model.
+            If the detector is containerized, you can pass the path on the
+            host, and the files will be automatically make available with RO
+            access to the container thanks to the HostFilePath type annotation.
+            Otherwise, the path will be kept unaltered.
+        labels: list[int]
+            The ground-truth binary labels corresponding to each training set
+            sample.
+        features_zip: str
+            The path of the compressed pre-extracted features.
+            If the detector is containerized, it must be inside the
+            `data/{detector_name}` project folder o a subfolder thereof.
+        dataset_file_zip: str
+            The path of the compressed dataset metadata file.
+            If the detector is containerized, it must be inside the
+            `data/{detector_name}` project folder o a subfolder thereof.
         """
         if features_zip is not None and dataset_file_zip is not None:
             features = self._load_features_zip(features_zip)
-            labels = self._load_labels(features_zip,
-                                       dataset_file_zip)
+            labels = self._load_labels(features_zip, dataset_file_zip)
         elif apk_paths is not None and labels is not None:
             features = self.extract_features(apk_paths)
             filtered = [(feat, label) for feat, label in
@@ -70,7 +87,8 @@ class BaseDREBIN(BaseDetector, ABC):
 
     @abstractmethod
     def _train(self, X, y):
-        """
+        """Private train method that accepts the vectorized features and
+        the labels array, which will be passed to the classifier.
 
         Parameters
         ----------
@@ -87,24 +105,44 @@ class BaseDREBIN(BaseDetector, ABC):
         self,
         features: list[str]
     ) -> tuple[list[int], list[float]]:
+        """
+        Given the textual extracted features, returns the predicted labels
+        and scores.
+
+        Parameters
+        ----------
+        features: list[str]
+            The textual features in the format <feature_type>::<feature_name>.
+
+        Returns
+        -------
+        tuple[list[int], list[float]]
+            The predicted labels and scores.
+        """
         pass
 
     def extract_features(
         self,
         apk_list: list[HostFilePath]
-    ):
+    ) -> Iterable[list[str]]:
         """
+        Given a list of APK file paths, extracts their features and returns them.
 
         Parameters
         ----------
-        apk_list : list of str
-            List with the absolute path of each APK file to classify.
+        apk_list : list[str]
+            The path of the APKs from which to extract the features.
+            If the detector is containerized, you can pass the path on the
+            host, and the files will be automatically make available with RO
+            access to the container thanks to the HostFilePath type annotation.
+            Otherwise, the path will be kept unaltered.
 
         Returns
         -------
-        iterable of iterables of strings
-            Iterable of shape (n_samples, n_features) containing textual
-            features in the format <feature_type>::<feature_name>.
+        Iterable[list[str]]
+            Iterable of shape (n_samples, n_features) containing for each sample
+            a list with the textual features in the format
+            <feature_type>::<feature_name>.
         """
         return self._feat_extractor.extract_features(apk_list)
 
@@ -113,6 +151,24 @@ class BaseDREBIN(BaseDetector, ABC):
         apk_paths: list[HostFilePath] | None = None,
         features_zip: ContainerFilePath | None = None
     ) -> tuple[list[int], list[float]]:
+        """
+        Given a list of APK file paths, returns the predicted labels
+        and scores.
+
+        Parameters
+        ----------
+        apk_paths : list[str]
+            The path of the APKs from which to extract the features.
+            If the detector is containerized, you can pass the path on the
+            host, and the files will be automatically make available with RO
+            access to the container thanks to the HostFilePath type annotation.
+            Otherwise, the path will be kept unaltered.
+
+        Returns
+        -------
+        tuple[list[int], list[float]]
+            The predicted labels and scores.
+        """
         if apk_paths is not None:
             features = self.extract_features(apk_paths)
         elif features_zip is not None:
@@ -128,9 +184,18 @@ class BaseDREBIN(BaseDetector, ABC):
         vectorizer_path: ContainerFilePath,
     ) -> None:
         """
+        Save the detector.
 
         Parameters
         ----------
+        classifier_path : str
+            The path where to store the classifier.
+            If the detector is containerized, it must be inside the
+            `data/{detector_name}` project folder o a subfolder thereof.
+        vectorizer_path : str
+            The path where to store the vectorizer.
+            If the detector is containerized, it must be inside the
+            `data/{detector_name}` project folder o a subfolder thereof.
         """
         with open(vectorizer_path, "wb") as f:
             pkl.dump(self._vectorizer, f)
@@ -146,13 +211,18 @@ class BaseDREBIN(BaseDetector, ABC):
         vectorizer_path: ContainerFilePath,
     ) -> None:
         """
+        Load the detector.
 
         Parameters
         ----------
-
-        Returns
-        -------
-        BaseDREBIN
+        classifier_path : str
+            The path from where to load the classifier.
+            If the detector is containerized, it must be inside the
+            `data/{detector_name}` project folder o a subfolder thereof.
+        vectorizer_path : str
+            The path from where to load the vectorizer.
+            If the detector is containerized, it must be inside the
+            `data/{detector_name}` project folder o a subfolder thereof.
         """
         with open(classifier_path, "rb") as f:
             classifier = pkl.load(f)
@@ -166,17 +236,21 @@ class BaseDREBIN(BaseDetector, ABC):
         return self._input_features
 
     @staticmethod
-    def _load_features_zip(features_path: str):
+    def _load_features_zip(
+        features_path: str
+    ) -> Generator[list[str]]:
         """
+        Load the pre-extracted features from the JSON files contained in a
+        compressed zip.
 
         Parameters
         ----------
-        features_path :
+        features_path : str
             Absolute path of the features compressed file.
 
         Returns
         -------
-        generator of list of strings
+        Generator[list[str]]
             Iteratively returns the textual feature vector of each sample.
         """
         if not Path(features_path).is_file():
@@ -188,8 +262,14 @@ class BaseDREBIN(BaseDetector, ABC):
                     yield [f"{k}::{v}" for k in js for v in js[k] if js[k]]
 
     @staticmethod
-    def _load_labels(features_path: str, ds_data_path: str):
+    def _load_labels(
+        features_path: str,
+        ds_data_path: str
+    ) -> list[int]:
         """
+        Load the labels from the dataset metadata compressed CSV file,
+        corresponding to the pre-extracted features contained in the feature
+        compressed zip.
 
         Parameters
         ----------
@@ -202,7 +282,7 @@ class BaseDREBIN(BaseDetector, ABC):
         Returns
         -------
         list[int]
-            List of shape (n_samples,) containing the class labels.
+            List containing the class labels.
         """
         if not Path(ds_data_path).is_file():
             raise FileNotFoundError(f"The file `{ds_data_path}` does not exist!")

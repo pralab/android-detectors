@@ -53,34 +53,83 @@ class SecSVM(DockerizedDetector):
 
     def train(self, apk_paths: list[HostFilePath] | None=None, labels: list[int] | None=None, features_zip: ContainerFilePath | None=None, dataset_file_zip: ContainerFilePath | None=None):
         """
+        Trains the model on the given data. It accepts either a list of APK file
+        paths and their corresponding labels, or the compressed features and
+        dataset metadata files.
+
         Parameters
         ----------
-        apk_paths
-        labels
-        features_zip
-        dataset_file_zip
+        apk_paths: list[str]
+            The path of the APK files to be used for training the model.
+            If the detector is containerized, you can pass the path on the
+            host, and the files will be automatically make available with RO
+            access to the container thanks to the HostFilePath type annotation.
+            Otherwise, the path will be kept unaltered.
+        labels: list[int]
+            The ground-truth binary labels corresponding to each training set
+            sample.
+        features_zip: str
+            The path of the compressed pre-extracted features.
+            If the detector is containerized, it must be inside the
+            `data/{detector_name}` project folder o a subfolder thereof.
+        dataset_file_zip: str
+            The path of the compressed dataset metadata file.
+            If the detector is containerized, it must be inside the
+            `data/{detector_name}` project folder o a subfolder thereof.
         """
         return super().train(apk_paths, labels, features_zip, dataset_file_zip)
 
     def load(self, classifier_path: ContainerFilePath, vectorizer_path: ContainerFilePath) -> None:
         """
+        Load the detector.
 
         Parameters
         ----------
-
-        Returns
-        -------
-        BaseDREBIN
+        classifier_path : str
+            The path from where to load the classifier.
+            If the detector is containerized, it must be inside the
+            `data/{detector_name}` project folder o a subfolder thereof.
+        vectorizer_path : str
+            The path from where to load the vectorizer.
+            If the detector is containerized, it must be inside the
+            `data/{detector_name}` project folder o a subfolder thereof.
         """
         return super().load(classifier_path, vectorizer_path)
 
     def save(self, classifier_path: ContainerFilePath, vectorizer_path: ContainerFilePath) -> None:
         """
+        Save the detector.
 
         Parameters
         ----------
+        classifier_path : str
+            The path where to store the classifier.
+            If the detector is containerized, it must be inside the
+            `data/{detector_name}` project folder o a subfolder thereof.
+        vectorizer_path : str
+            The path where to store the vectorizer.
+            If the detector is containerized, it must be inside the
+            `data/{detector_name}` project folder o a subfolder thereof.
         """
         return super().save(classifier_path, vectorizer_path)
 
     def classify(self, apk_paths: list[HostFilePath] | None=None, features_zip: ContainerFilePath | None=None) -> tuple[list[int], list[float]]:
+        """
+        Given a list of APK file paths, returns the predicted labels
+        and scores.
+
+        Parameters
+        ----------
+        apk_paths : list[str]
+            The path of the APKs from which to extract the features.
+            If the detector is containerized, you can pass the path on the
+            host, and the files will be automatically make available with RO
+            access to the container thanks to the HostFilePath type annotation.
+            Otherwise, the path will be kept unaltered.
+
+        Returns
+        -------
+        tuple[list[int], list[float]]
+            The predicted labels and scores.
+        """
         return super().classify(apk_paths, features_zip)
