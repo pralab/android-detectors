@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from core import HostFilePath
+from .types import HostFilePath
 
 
 class BaseDetector(ABC):
