@@ -238,7 +238,7 @@ class BaseDREBIN(BaseDetector, ABC):
     @staticmethod
     def _load_features_zip(
         features_path: str
-    ) -> Generator[list[str]]:
+    ) -> Generator[list[str], None, None]:
         """
         Load the pre-extracted features from the JSON files contained in a
         compressed zip.
