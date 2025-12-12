@@ -132,5 +132,4 @@ dmypy.json
 *.out
 *.pkl
 *.zip
-*.json
 data
